@@ -4,6 +4,7 @@ from uuid import UUID
 from app.domain.orders.enums import OrderStatus
 from app.domain.orders.events import (
     InventoryReserved,
+    OrderConfirmed,
     OrderCreated,
     PaymentAuthorized,
 )
@@ -79,16 +80,35 @@ class Order:
         self,
         correlation_id: UUID,
 ) ->     None:
-    
+
         if self.status != OrderStatus.INVENTORY_RESERVED:
             raise InvalidOrderStateTransitionError()
-    
+
         self.status = OrderStatus.PAYMENT_AUTHORIZED
+
+        self.version += 1
+
+        self.pending_events.append(
+            PaymentAuthorized(
+                order_id=self.order_id,
+                correlation_id=correlation_id,
+            )
+        )
+
+    def mark_confirmed(
+        self,
+        correlation_id: UUID,
+) ->     None:
+    
+        if self.status != OrderStatus.PAYMENT_AUTHORIZED:
+            raise InvalidOrderStateTransitionError()
+    
+        self.status = OrderStatus.CONFIRMED
     
         self.version += 1
     
         self.pending_events.append(
-            PaymentAuthorized(
+            OrderConfirmed(
                 order_id=self.order_id,
                 correlation_id=correlation_id,
             )

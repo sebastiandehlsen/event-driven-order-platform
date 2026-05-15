@@ -132,3 +132,55 @@ def test_payment_cannot_be_authorized_before_inventory():
         order.mark_payment_authorized(
             UUID("87654321-4321-8765-4321-876543218765")
         )
+
+def test_order_can_be_confirmed():
+    order = Order.create(
+        customer_id=CustomerId(
+            UUID("12345678-1234-5678-1234-567812345678")
+        ),
+        idempotency_key=IdempotencyKey("order-request-1"),
+        item_count=1,
+        correlation_id=UUID(
+            "87654321-4321-8765-4321-876543218765"
+        ),
+    )
+
+    order.reserve_inventory(
+        UUID("87654321-4321-8765-4321-876543218765")
+    )
+
+    order.mark_payment_authorized(
+        UUID("87654321-4321-8765-4321-876543218765")
+    )
+
+    order.mark_confirmed(
+        UUID("87654321-4321-8765-4321-876543218765")
+    )
+
+    assert order.status == OrderStatus.CONFIRMED
+    assert order.version == 4
+    assert len(order.pending_events) == 4
+
+
+def test_order_cannot_be_confirmed_before_payment():
+    order = Order.create(
+        customer_id=CustomerId(
+            UUID("12345678-1234-5678-1234-567812345678")
+        ),
+        idempotency_key=IdempotencyKey("order-request-1"),
+        item_count=1,
+        correlation_id=UUID(
+            "87654321-4321-8765-4321-876543218765"
+        ),
+    )
+
+    order.reserve_inventory(
+        UUID("87654321-4321-8765-4321-876543218765")
+    )
+
+    with pytest.raises(
+        InvalidOrderStateTransitionError
+    ):
+        order.mark_confirmed(
+            UUID("87654321-4321-8765-4321-876543218765")
+        )
