@@ -52,12 +52,22 @@ Order
 
 ## Invariants
 
-1.
+1. An order must contain at least one order item before it can be created.
 
-2.
+2. An order cannot transition to PAYMENT_AUTHORIZED unless inventory has been successfully reserved.
 
-3.
+3. An order can only transition to CONFIRMED after payment authorization has succeeded.
 
-4.
+4. An order with the same idempotency key must never be created more than once.
 
-5.
+5. An order state transition must fail if the aggregate version does not match the expected version.
+
+6. A cancelled or rejected order cannot transition to any active processing state.
+
+7. Payment failure after inventory reservation must trigger inventory release before order cancellation.
+
+8. Every successful state transition must emit exactly one domain event.
+
+9. Every domain event must be traceable using a correlation identifier.
+
+10. Order state transitions must be processed in causal order and cannot skip required intermediate states.
