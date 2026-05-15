@@ -1,3 +1,5 @@
+import time
+
 from app.infrastructure.repositories.order_repository import (
     SqlAlchemyOrderRepository,
 )
@@ -38,4 +40,19 @@ class OutboxDispatcher:
 
             self._publisher.publish(
                 message
+            )
+
+    def run_forever(
+        self,
+        poll_interval: float = (
+            1.0
+        ),
+    ) -> None:
+
+        while True:
+
+            self.dispatch()
+
+            time.sleep(
+                poll_interval
             )
