@@ -24,15 +24,16 @@ def test_registered_handler_is_called():
     )
 
     payload = {
-        "event_type": (
-            "OrderCreated"
+        "order_id": (
+            "123"
         ),
     }
 
     handlers.handle(
+        "OrderCreated",
         json.dumps(
             payload
-        ).encode()
+        ).encode(),
     )
 
     handler.assert_called_once()

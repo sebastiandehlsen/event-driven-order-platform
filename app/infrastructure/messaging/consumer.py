@@ -66,7 +66,8 @@ class RabbitMQConsumer:
         ):
 
             self._handlers.handle(
-                body
+                method.routing_key,
+                body,
             )
 
         self._channel.basic_consume(

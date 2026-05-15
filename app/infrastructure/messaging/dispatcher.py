@@ -42,6 +42,12 @@ class OutboxDispatcher:
                 message
             )
 
+            message.published = (
+                True
+            )
+
+        self._repository._session.commit()
+
     def run_forever(
         self,
         poll_interval: float = (

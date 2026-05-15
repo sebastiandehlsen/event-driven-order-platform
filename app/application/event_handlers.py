@@ -25,16 +25,13 @@ class EventHandlers:
 
     def handle(
         self,
+        event_type: str,
         event_payload: bytes,
     ) -> None:
 
         payload = json.loads(
             event_payload.decode()
         )
-
-        event_type = payload[
-            "event_type"
-        ]
 
         handler = (
             self._handlers.get(

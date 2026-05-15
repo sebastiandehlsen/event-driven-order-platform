@@ -1,25 +1,59 @@
 from dataclasses import dataclass
-from uuid import UUID, uuid4
+from uuid import (
+    UUID,
+    uuid4,
+)
 
 
-@dataclass(frozen=True)
+@dataclass(
+    frozen=True
+)
 class OrderId:
     value: UUID
 
     @classmethod
-    def generate(cls) -> "OrderId":
-        return cls(value=uuid4())
+    def generate(
+        cls,
+    ) -> "OrderId":
+
+        return cls(
+            value=uuid4()
+        )
 
 
-@dataclass(frozen=True)
+@dataclass(
+    frozen=True
+)
 class CustomerId:
     value: UUID
 
+    @classmethod
+    def generate(
+        cls,
+    ) -> "CustomerId":
 
-@dataclass(frozen=True)
+        return cls(
+            value=uuid4()
+        )
+
+
+@dataclass(
+    frozen=True
+)
 class IdempotencyKey:
     value: str
 
-    def __post_init__(self) -> None:
-        if not self.value.strip():
-            raise ValueError("idempotency key cannot be empty")
+    def __post_init__(
+        self,
+    ) -> None:
+
+        if not (
+            self.value.strip()
+        ):
+
+            raise ValueError(
+                (
+                    "idempotency key "
+                    "cannot be empty"
+                )
+            )
