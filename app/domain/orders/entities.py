@@ -2,8 +2,14 @@ from dataclasses import dataclass, field
 from uuid import UUID
 
 from app.domain.orders.enums import OrderStatus
-from app.domain.orders.events import OrderCreated
-from app.domain.orders.exceptions import EmptyOrderError
+from app.domain.orders.events import (
+    InventoryReserved,
+    OrderCreated,
+)
+from app.domain.orders.exceptions import (
+    EmptyOrderError,
+    InvalidOrderStateTransitionError,
+)
 from app.domain.orders.value_objects import (
     CustomerId,
     IdempotencyKey,
@@ -49,3 +55,22 @@ class Order:
         )
 
         return order
+
+    def reserve_inventory(
+        self,
+        correlation_id: UUID,
+    ) -> None:
+
+        if self.status != OrderStatus.PENDING:
+            raise InvalidOrderStateTransitionError()
+
+        self.status = OrderStatus.INVENTORY_RESERVED
+
+        self.version += 1
+
+        self.pending_events.append(
+            InventoryReserved(
+                order_id=self.order_id,
+                correlation_id=correlation_id,
+            )
+        )
