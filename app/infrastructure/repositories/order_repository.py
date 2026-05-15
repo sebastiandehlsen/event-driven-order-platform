@@ -12,6 +12,10 @@ from app.infrastructure.mappers.order_mapper import (
     OrderMapper,
 )
 
+from app.infrastructure.mappers.outbox_mapper import (
+    OutboxMapper,
+)
+
 
 class OrderRepository(ABC):
 
@@ -62,13 +66,31 @@ class SqlAlchemyOrderRepository(
         order: Order,
     ) -> None:
 
-        model = OrderMapper.to_model(
-            order
+        order_model = (
+            OrderMapper.to_model(
+                order
+            )
         )
 
         self._session.merge(
-            model
+            order_model
         )
+
+        for event in (
+            order.pending_events
+        ):
+
+            outbox_model = (
+                OutboxMapper.to_model(
+                    event
+                )
+            )
+
+            self._session.add(
+                outbox_model
+            )
+
+        order.clear_pending_events()
 
     def get_by_id(
         self,
