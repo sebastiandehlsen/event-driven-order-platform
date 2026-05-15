@@ -113,3 +113,6 @@ class Order:
                 correlation_id=correlation_id,
             )
         )
+
+    def clear_pending_events(self) -> None:
+        self.pending_events.clear()
