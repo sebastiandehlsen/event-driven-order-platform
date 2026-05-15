@@ -87,3 +87,48 @@ def test_invalid_inventory_transition_is_rejected():
         order.reserve_inventory(
             UUID("87654321-4321-8765-4321-876543218765")
         )
+
+
+def test_payment_can_be_marked_as_authorized():
+    order = Order.create(
+        customer_id=CustomerId(
+            UUID("12345678-1234-5678-1234-567812345678")
+        ),
+        idempotency_key=IdempotencyKey("order-request-1"),
+        item_count=1,
+        correlation_id=UUID(
+            "87654321-4321-8765-4321-876543218765"
+        ),
+    )
+
+    order.reserve_inventory(
+        UUID("87654321-4321-8765-4321-876543218765")
+    )
+
+    order.mark_payment_authorized(
+        UUID("87654321-4321-8765-4321-876543218765")
+    )
+
+    assert order.status == OrderStatus.PAYMENT_AUTHORIZED
+    assert order.version == 3
+    assert len(order.pending_events) == 3
+
+
+def test_payment_cannot_be_authorized_before_inventory():
+    order = Order.create(
+        customer_id=CustomerId(
+            UUID("12345678-1234-5678-1234-567812345678")
+        ),
+        idempotency_key=IdempotencyKey("order-request-1"),
+        item_count=1,
+        correlation_id=UUID(
+            "87654321-4321-8765-4321-876543218765"
+        ),
+    )
+
+    with pytest.raises(
+        InvalidOrderStateTransitionError
+    ):
+        order.mark_payment_authorized(
+            UUID("87654321-4321-8765-4321-876543218765")
+        )

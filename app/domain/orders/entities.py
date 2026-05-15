@@ -5,6 +5,7 @@ from app.domain.orders.enums import OrderStatus
 from app.domain.orders.events import (
     InventoryReserved,
     OrderCreated,
+    PaymentAuthorized,
 )
 from app.domain.orders.exceptions import (
     EmptyOrderError,
@@ -70,6 +71,24 @@ class Order:
 
         self.pending_events.append(
             InventoryReserved(
+                order_id=self.order_id,
+                correlation_id=correlation_id,
+            )
+        )
+    def mark_payment_authorized(
+        self,
+        correlation_id: UUID,
+) ->     None:
+    
+        if self.status != OrderStatus.INVENTORY_RESERVED:
+            raise InvalidOrderStateTransitionError()
+    
+        self.status = OrderStatus.PAYMENT_AUTHORIZED
+    
+        self.version += 1
+    
+        self.pending_events.append(
+            PaymentAuthorized(
                 order_id=self.order_id,
                 correlation_id=correlation_id,
             )
