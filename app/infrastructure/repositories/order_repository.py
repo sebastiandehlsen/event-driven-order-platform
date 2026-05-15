@@ -108,3 +108,21 @@ class SqlAlchemyOrderRepository(
         return OrderMapper.to_domain(
             model
         )
+
+    def get_unpublished_messages(
+        self,
+    ) -> list:
+
+        from app.infrastructure.db.models import (
+            OutboxMessageModel,
+        )
+
+        return (
+            self._session.query(
+                OutboxMessageModel
+            )
+            .filter_by(
+                published=False
+            )
+            .all()
+        )
