@@ -27,8 +27,14 @@ def test_consumer_can_be_created(
         connection
     )
 
+    handlers = (
+        MagicMock()
+    )
+
     consumer = (
-        RabbitMQConsumer()
+        RabbitMQConsumer(
+            handlers
+        )
     )
 
     assert (

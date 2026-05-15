@@ -1,11 +1,22 @@
 import pika
 
+from app.application.event_handlers import (
+    EventHandlers,
+)
+
 
 class RabbitMQConsumer:
 
     def __init__(
         self,
+        handlers: (
+            EventHandlers
+        ),
     ) -> None:
+
+        self._handlers = (
+            handlers
+        )
 
         self._connection = (
             pika.BlockingConnection(
@@ -54,8 +65,8 @@ class RabbitMQConsumer:
             body,
         ):
 
-            print(
-                body.decode()
+            self._handlers.handle(
+                body
             )
 
         self._channel.basic_consume(
