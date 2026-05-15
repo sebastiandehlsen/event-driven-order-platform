@@ -1,0 +1,51 @@
+from dataclasses import dataclass, field
+from uuid import UUID
+
+from app.domain.orders.enums import OrderStatus
+from app.domain.orders.events import OrderCreated
+from app.domain.orders.exceptions import EmptyOrderError
+from app.domain.orders.value_objects import (
+    CustomerId,
+    IdempotencyKey,
+    OrderId,
+)
+
+
+@dataclass
+class Order:
+    order_id: OrderId
+    customer_id: CustomerId
+    status: OrderStatus
+    version: int
+    idempotency_key: IdempotencyKey
+
+    pending_events: list = field(default_factory=list)
+
+    @classmethod
+    def create(
+        cls,
+        customer_id: CustomerId,
+        idempotency_key: IdempotencyKey,
+        item_count: int,
+        correlation_id: UUID,
+    ) -> "Order":
+
+        if item_count < 1:
+            raise EmptyOrderError()
+
+        order = cls(
+            order_id=OrderId.generate(),
+            customer_id=customer_id,
+            status=OrderStatus.PENDING,
+            version=1,
+            idempotency_key=idempotency_key,
+        )
+
+        order.pending_events.append(
+            OrderCreated(
+                order_id=order.order_id,
+                correlation_id=correlation_id,
+            )
+        )
+
+        return order

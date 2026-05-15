@@ -1,0 +1,2 @@
+class EmptyOrderError(Exception):
+    pass
