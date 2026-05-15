@@ -63,3 +63,8 @@ class OutboxMessageModel(Base):
             nullable=False,
         )
     )
+    
+    published: Mapped[bool] = mapped_column(
+        default=False,
+        nullable=False,
+    )
