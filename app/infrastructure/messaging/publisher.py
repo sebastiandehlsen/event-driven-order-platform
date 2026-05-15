@@ -13,3 +13,24 @@ class EventPublisher(ABC):
         message: OutboxMessageModel,
     ) -> None:
         raise NotImplementedError
+    
+class InMemoryEventPublisher(
+    EventPublisher
+):
+
+    def __init__(
+        self,
+    ) -> None:
+
+        self.messages: list = []
+
+    def publish(
+        self,
+        message: OutboxMessageModel,
+    ) -> None:
+
+        self.messages.append(
+            message
+        )
+
+        message.published = True
