@@ -90,6 +90,8 @@ class SqlAlchemyOrderRepository(
                 outbox_model
             )
 
+        self._session.commit()
+
         order.clear_pending_events()
 
     def get_by_id(

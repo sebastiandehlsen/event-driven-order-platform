@@ -7,6 +7,11 @@ from sqlalchemy.orm import (
 )
 
 
+DATABASE_URL = (
+    "sqlite:///orders.db"
+)
+
+
 class Base(
     DeclarativeBase
 ):
@@ -14,7 +19,7 @@ class Base(
 
 
 engine = create_engine(
-    "sqlite:///orders.db",
+    DATABASE_URL,
     echo=False,
 )
 
@@ -24,25 +29,6 @@ SessionLocal = sessionmaker(
     autoflush=False,
     autocommit=False,
 )
-
-
-def create_session_factory(
-    database_url: str,
-):
-
-    engine = create_engine(
-        database_url,
-    )
-
-    Base.metadata.create_all(
-        bind=engine,
-    )
-
-    return sessionmaker(
-        bind=engine,
-        autoflush=False,
-        autocommit=False,
-    )
 
 
 Base.metadata.create_all(

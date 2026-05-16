@@ -1,7 +1,7 @@
 from app.infrastructure.db import models
 
 from app.infrastructure.db.session import (
-    create_session_factory,
+    SessionLocal,
 )
 from app.infrastructure.messaging.dispatcher import (
     OutboxDispatcher,
@@ -17,12 +17,6 @@ from app.infrastructure.repositories.order_repository import (
 def main() -> None:
 
     _ = models
-
-    SessionLocal = (
-        create_session_factory(
-            "sqlite:///orders.db"
-        )
-    )
 
     session = (
         SessionLocal()
