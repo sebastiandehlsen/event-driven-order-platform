@@ -19,6 +19,10 @@ from app.infrastructure.repositories.order_repository import (
     SqlAlchemyOrderRepository,
 )
 
+from app.application.commands.reserve_inventory_command import (
+    ReserveInventoryCommand,
+)
+
 
 app = (
     FastAPI()
@@ -55,6 +59,40 @@ def create_order():
             order_id
         ),
     }
+
+@app.post(
+    "/orders/{order_id}/reserve-inventory",
+)
+def reserve_inventory(
+    order_id: str,
+):
+
+    session = (
+        SessionLocal()
+    )
+
+    repository = (
+        SqlAlchemyOrderRepository(
+            session
+        )
+    )
+
+    command = (
+        ReserveInventoryCommand(
+            repository
+        )
+    )
+
+    command.execute(
+        order_id
+    )
+
+    return {
+        "status": (
+            "inventory_reserved"
+        ),
+    }
+
 
 
 @app.get(

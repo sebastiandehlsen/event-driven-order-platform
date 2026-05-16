@@ -19,6 +19,9 @@ from app.infrastructure.repositories.order_projection_repository import (
     OrderProjectionRepository,
 )
 
+from app.application.inventory_reserved_handler import (
+    InventoryReservedHandler,
+)
 
 def main() -> None:
 
@@ -43,6 +46,13 @@ def main() -> None:
     handlers.register(
         "OrderCreated",
         OrderCreatedProjectionHandler(
+            repository
+        ),
+    )
+
+    handlers.register(
+        "InventoryReserved",
+        InventoryReservedHandler(
             repository
         ),
     )

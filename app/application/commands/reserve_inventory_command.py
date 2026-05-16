@@ -1,0 +1,53 @@
+from uuid import (
+    uuid4,
+)
+
+from app.domain.orders.value_objects import (
+    OrderId,
+)
+from app.infrastructure.repositories.order_repository import (
+    SqlAlchemyOrderRepository,
+)
+
+
+class ReserveInventoryCommand:
+
+    def __init__(
+        self,
+        repository: (
+            SqlAlchemyOrderRepository
+        ),
+    ) -> None:
+
+        self._repository = (
+            repository
+        )
+
+    def execute(
+        self,
+        order_id: str,
+    ) -> None:
+
+        order = (
+            self._repository.get_by_id(
+                OrderId(
+                    order_id
+                )
+            )
+        )
+
+        if order is None:
+
+            raise ValueError(
+                "Order not found"
+            )
+
+        order.reserve_inventory(
+            correlation_id=(
+                uuid4()
+            )
+        )
+
+        self._repository.save(
+            order
+        )
