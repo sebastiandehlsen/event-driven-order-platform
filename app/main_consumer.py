@@ -23,6 +23,10 @@ from app.application.inventory_reserved_handler import (
     InventoryReservedHandler,
 )
 
+from app.application.payment_authorized_handler import (
+    PaymentAuthorizedHandler,
+)
+
 def main() -> None:
 
     Base.metadata.create_all(
@@ -53,6 +57,13 @@ def main() -> None:
     handlers.register(
         "InventoryReserved",
         InventoryReservedHandler(
+            repository
+        ),
+    )
+
+    handlers.register(
+        "PaymentAuthorized",
+        PaymentAuthorizedHandler(
             repository
         ),
     )

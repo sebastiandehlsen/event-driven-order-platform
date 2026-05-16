@@ -56,3 +56,9 @@ class OrderProjectionRepository:
                 order_id,
             )
         )
+
+    def commit(
+        self,
+    ) -> None:
+
+        self._session.commit()

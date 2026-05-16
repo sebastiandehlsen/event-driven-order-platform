@@ -23,6 +23,10 @@ from app.application.commands.reserve_inventory_command import (
     ReserveInventoryCommand,
 )
 
+from app.application.commands.authorize_payment_command import (
+    AuthorizePaymentCommand,
+)
+
 
 app = (
     FastAPI()
@@ -93,6 +97,38 @@ def reserve_inventory(
         ),
     }
 
+@app.post(
+    "/orders/{order_id}/authorize-payment",
+)
+def authorize_payment(
+    order_id: str,
+):
+
+    session = (
+        SessionLocal()
+    )
+
+    repository = (
+        SqlAlchemyOrderRepository(
+            session
+        )
+    )
+
+    command = (
+        AuthorizePaymentCommand(
+            repository
+        )
+    )
+
+    command.execute(
+        order_id
+    )
+
+    return {
+        "status": (
+            "payment_authorized"
+        ),
+    }
 
 
 @app.get(

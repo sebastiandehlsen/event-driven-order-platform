@@ -1,3 +1,5 @@
+import json
+
 import pika
 
 from app.application.event_handlers import (
@@ -65,9 +67,20 @@ class RabbitMQConsumer:
             body,
         ):
 
+            payload = (
+                json.loads(
+                    body.decode()
+                )
+            )
+
+            print(
+                method.routing_key,
+                payload,
+            )
+
             self._handlers.handle(
                 method.routing_key,
-                body,
+                payload,
             )
 
         self._channel.basic_consume(

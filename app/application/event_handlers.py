@@ -1,4 +1,3 @@
-import json
 from typing import Callable
 
 
@@ -26,12 +25,8 @@ class EventHandlers:
     def handle(
         self,
         event_type: str,
-        event_payload: bytes,
+        event_payload: dict,
     ) -> None:
-
-        payload = json.loads(
-            event_payload.decode()
-        )
 
         handler = (
             self._handlers.get(
@@ -42,5 +37,5 @@ class EventHandlers:
         if handler:
 
             handler(
-                payload
+                event_payload
             )
