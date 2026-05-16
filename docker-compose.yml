@@ -1,6 +1,61 @@
-version: "3.9"
-
 services:
+
+  api:
+
+    build: .
+
+    container_name: order-platform-api
+
+    command: >
+      uvicorn app.api.main:app
+      --host 0.0.0.0
+      --port 8000
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - rabbitmq
+
+    volumes:
+      - .:/app
+
+    restart: unless-stopped
+
+
+  dispatcher:
+
+    build: .
+
+    container_name: order-platform-dispatcher
+
+    command: python -m app.main
+
+    depends_on:
+      - rabbitmq
+
+    volumes:
+      - .:/app
+
+    restart: unless-stopped
+
+
+  consumer:
+
+    build: .
+
+    container_name: order-platform-consumer
+
+    command: python -m app.main_consumer
+
+    depends_on:
+      - rabbitmq
+
+    volumes:
+      - .:/app
+
+    restart: unless-stopped
+
 
   rabbitmq:
 

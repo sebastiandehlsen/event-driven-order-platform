@@ -1,3 +1,5 @@
+import time
+
 import pika
 
 from app.infrastructure.db.models import (
@@ -9,27 +11,43 @@ from app.infrastructure.messaging.publisher import (
 
 
 class RabbitMQPublisher(
-    EventPublisher
+    EventPublisher,
 ):
 
     def __init__(
         self,
     ) -> None:
 
-        self._connection = (
-            pika.BlockingConnection(
-                pika.ConnectionParameters(
-                    host="localhost",
-                    port=5672,
-                    credentials=(
-                        pika.PlainCredentials(
-                            "admin",
-                            "admin",
+        while True:
+
+            try:
+
+                self._connection = (
+                    pika.BlockingConnection(
+                        pika.ConnectionParameters(
+                            host="rabbitmq",
+                            port=5672,
+                            credentials=(
+                                pika.PlainCredentials(
+                                    "admin",
+                                    "admin",
+                                )
+                            ),
                         )
-                    ),
+                    )
                 )
-            )
-        )
+
+                break
+
+            except Exception:
+
+                print(
+                    "Waiting for RabbitMQ..."
+                )
+
+                time.sleep(
+                    2
+                )
 
         self._channel = (
             self._connection.channel()

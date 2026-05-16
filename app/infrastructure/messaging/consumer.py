@@ -1,4 +1,5 @@
 import json
+import time
 
 import pika
 
@@ -11,29 +12,43 @@ class RabbitMQConsumer:
 
     def __init__(
         self,
-        handlers: (
-            EventHandlers
-        ),
+        handlers: EventHandlers,
     ) -> None:
 
         self._handlers = (
             handlers
         )
 
-        self._connection = (
-            pika.BlockingConnection(
-                pika.ConnectionParameters(
-                    host="localhost",
-                    port=5672,
-                    credentials=(
-                        pika.PlainCredentials(
-                            "admin",
-                            "admin",
+        while True:
+
+            try:
+
+                self._connection = (
+                    pika.BlockingConnection(
+                        pika.ConnectionParameters(
+                            host="rabbitmq",
+                            port=5672,
+                            credentials=(
+                                pika.PlainCredentials(
+                                    "admin",
+                                    "admin",
+                                )
+                            ),
                         )
-                    ),
+                    )
                 )
-            )
-        )
+
+                break
+
+            except Exception:
+
+                print(
+                    "Waiting for RabbitMQ..."
+                )
+
+                time.sleep(
+                    2
+                )
 
         self._channel = (
             self._connection.channel()
