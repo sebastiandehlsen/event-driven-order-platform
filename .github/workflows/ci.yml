@@ -61,6 +61,11 @@ jobs:
 
       - name: Run tests
 
+        env:
+
+          RABBITMQ_HOST: rabbitmq
+
+        
         run: |
 
           python -m pytest
