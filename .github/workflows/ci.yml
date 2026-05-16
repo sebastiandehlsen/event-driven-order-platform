@@ -63,7 +63,7 @@ jobs:
 
         env:
 
-          RABBITMQ_HOST: rabbitmq
+          RABBITMQ_HOST: localhost
 
         
         run: |
