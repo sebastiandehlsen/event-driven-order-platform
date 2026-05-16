@@ -1,5 +1,6 @@
 from uuid import UUID
 import time
+import os
 
 import pika
 
@@ -22,7 +23,10 @@ def test_event_can_be_published_to_live_rabbitmq():
     connection = (
         pika.BlockingConnection(
             pika.ConnectionParameters(
-                host="localhost",
+                host=os.getenv(
+                "RABBITMQ_HOST",
+                "localhost",
+            ),
                 port=5672,
                 credentials=(
                     pika.PlainCredentials(
