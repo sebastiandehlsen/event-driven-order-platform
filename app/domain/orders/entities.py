@@ -7,6 +7,7 @@ from app.domain.orders.events import (
     OrderConfirmed,
     OrderCreated,
     PaymentAuthorized,
+    PaymentFailed,
 )
 from app.domain.orders.exceptions import (
     EmptyOrderError,
@@ -94,6 +95,30 @@ class Order:
                 correlation_id=correlation_id,
             )
         )
+
+    def mark_payment_failed(
+        self,
+        correlation_id: UUID,
+) -> None:
+
+        if self.status != OrderStatus.INVENTORY_RESERVED:
+
+            raise InvalidOrderStateTransitionError()
+
+        self.status = (
+            OrderStatus.PAYMENT_FAILED
+        )
+
+        self.version += 1
+
+        self.pending_events.append(
+            PaymentFailed(
+                order_id=self.order_id,
+                correlation_id=correlation_id,
+            )
+        )
+
+
 
     def mark_confirmed(
         self,

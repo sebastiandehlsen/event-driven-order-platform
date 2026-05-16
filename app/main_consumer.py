@@ -31,6 +31,10 @@ from app.application.order_confirmed_handler import (
     OrderConfirmedHandler,
 )
 
+from app.application.payment_failed_handler import (
+    PaymentFailedHandler,
+)
+
 def main() -> None:
 
     Base.metadata.create_all(
@@ -68,6 +72,13 @@ def main() -> None:
     handlers.register(
         "PaymentAuthorized",
         PaymentAuthorizedHandler(
+            repository
+        ),
+    )
+
+    handlers.register(
+        "PaymentFailed",
+        PaymentFailedHandler(
             repository
         ),
     )

@@ -31,6 +31,12 @@ from app.application.commands.confirm_order_command import (
     ConfirmOrderCommand,
 )
 
+from app.application.commands.fail_payment_command import (
+    FailPaymentCommand,
+)
+
+
+
 app = (
     FastAPI()
 )
@@ -130,6 +136,39 @@ def authorize_payment(
     return {
         "status": (
             "payment_authorized"
+        ),
+    }
+
+@app.post(
+    "/orders/{order_id}/fail-payment",
+)
+def fail_payment(
+    order_id: str,
+):
+
+    session = (
+        SessionLocal()
+    )
+
+    repository = (
+        SqlAlchemyOrderRepository(
+            session
+        )
+    )
+
+    command = (
+        FailPaymentCommand(
+            repository
+        )
+    )
+
+    command.execute(
+        order_id
+    )
+
+    return {
+        "status": (
+            "payment_failed"
         ),
     }
 
