@@ -27,6 +27,9 @@ from app.application.commands.authorize_payment_command import (
     AuthorizePaymentCommand,
 )
 
+from app.application.commands.confirm_order_command import (
+    ConfirmOrderCommand,
+)
 
 app = (
     FastAPI()
@@ -129,6 +132,42 @@ def authorize_payment(
             "payment_authorized"
         ),
     }
+
+@app.post(
+    "/orders/{order_id}/confirm",
+)
+def confirm_order(
+    order_id: str,
+):
+
+    session = (
+        SessionLocal()
+    )
+
+    repository = (
+        SqlAlchemyOrderRepository(
+            session
+        )
+    )
+
+    command = (
+        ConfirmOrderCommand(
+            repository
+        )
+    )
+
+    command.execute(
+        order_id
+    )
+
+    return {
+        "status": (
+            "confirmed"
+        ),
+    }
+
+
+
 
 
 @app.get(
