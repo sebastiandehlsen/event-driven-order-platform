@@ -35,6 +35,12 @@ class InventoryReserved(
 ):
     order_id: OrderId
 
+@dataclass(frozen=True)
+class InventoryReleased(
+    DomainEvent
+):
+    order_id: OrderId
+
 
 @dataclass(frozen=True)
 class PaymentAuthorized(

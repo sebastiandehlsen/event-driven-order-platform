@@ -35,6 +35,10 @@ from app.application.payment_failed_handler import (
     PaymentFailedHandler,
 )
 
+from app.application.inventory_released_handler import (
+    InventoryReleasedHandler,
+)
+
 def main() -> None:
 
     Base.metadata.create_all(
@@ -79,6 +83,13 @@ def main() -> None:
     handlers.register(
         "PaymentFailed",
         PaymentFailedHandler(
+            repository
+        ),
+    )
+
+    handlers.register(
+        "InventoryReleased",
+        InventoryReleasedHandler(
             repository
         ),
     )

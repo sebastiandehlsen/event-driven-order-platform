@@ -8,6 +8,7 @@ from app.domain.orders.events import (
     OrderCreated,
     PaymentAuthorized,
     PaymentFailed,
+    InventoryReleased,
 )
 from app.domain.orders.exceptions import (
     EmptyOrderError,
@@ -118,6 +119,27 @@ class Order:
             )
         )
 
+    def release_inventory(
+        self,
+        correlation_id: UUID,
+) -> None:
+
+        if self.status != OrderStatus.PAYMENT_FAILED:
+
+            raise InvalidOrderStateTransitionError()
+
+        self.status = (
+            OrderStatus.CANCELLED
+        )
+
+        self.version += 1
+
+        self.pending_events.append(
+            InventoryReleased(
+                order_id=self.order_id,
+                correlation_id=correlation_id,
+            )
+        )
 
 
     def mark_confirmed(

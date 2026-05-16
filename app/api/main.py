@@ -35,6 +35,10 @@ from app.application.commands.fail_payment_command import (
     FailPaymentCommand,
 )
 
+from app.application.commands.release_inventory_command import (
+    ReleaseInventoryCommand,
+)
+
 
 
 app = (
@@ -169,6 +173,39 @@ def fail_payment(
     return {
         "status": (
             "payment_failed"
+        ),
+    }
+
+@app.post(
+    "/orders/{order_id}/release-inventory",
+)
+def release_inventory(
+    order_id: str,
+):
+
+    session = (
+        SessionLocal()
+    )
+
+    repository = (
+        SqlAlchemyOrderRepository(
+            session
+        )
+    )
+
+    command = (
+        ReleaseInventoryCommand(
+            repository
+        )
+    )
+
+    command.execute(
+        order_id
+    )
+
+    return {
+        "status": (
+            "inventory_released"
         ),
     }
 
