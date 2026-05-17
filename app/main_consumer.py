@@ -108,6 +108,9 @@ def main() -> None:
     )
 
     consumer.start()
+    print(
+    "Consumer started",
+    )
 
 
 if __name__ == "__main__":

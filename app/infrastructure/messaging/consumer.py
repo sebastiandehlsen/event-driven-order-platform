@@ -1,4 +1,5 @@
 import json
+import os
 import time
 
 import pika
@@ -26,7 +27,10 @@ class RabbitMQConsumer:
                 self._connection = (
                     pika.BlockingConnection(
                         pika.ConnectionParameters(
-                            host="rabbitmq",
+                            host=os.getenv(
+                                "RABBITMQ_HOST",
+                                "rabbitmq",
+                            ),
                             port=5672,
                             credentials=(
                                 pika.PlainCredentials(
@@ -74,6 +78,10 @@ class RabbitMQConsumer:
     def start(
         self,
     ) -> None:
+
+        print(
+            "Consumer started",
+        )
 
         def callback(
             ch,

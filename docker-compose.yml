@@ -15,7 +15,10 @@ services:
       - "8000:8000"
 
     depends_on:
-      - rabbitmq
+
+      rabbitmq:
+
+        condition: service_healthy
 
     volumes:
       - .:/app
@@ -29,10 +32,13 @@ services:
 
     container_name: order-platform-dispatcher
 
-    command: python -m app.main
+    command: python -u -m app.main
 
     depends_on:
-      - rabbitmq
+
+      rabbitmq:
+
+        condition: service_healthy
 
     volumes:
       - .:/app
@@ -46,10 +52,13 @@ services:
 
     container_name: order-platform-consumer
 
-    command: python -m app.main_consumer
+    command: python -u -m app.main_consumer
 
     depends_on:
-      - rabbitmq
+
+      rabbitmq:
+
+        condition: service_healthy
 
     volumes:
       - .:/app

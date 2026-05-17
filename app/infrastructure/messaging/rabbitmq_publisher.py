@@ -28,7 +28,7 @@ class RabbitMQPublisher(
                         pika.ConnectionParameters(
                             host=os.getenv(
                                 "RABBITMQ_HOST",
-                                "localhost",
+                                "rabbitmq",
                             ),
                             port=5672,
                             credentials=(

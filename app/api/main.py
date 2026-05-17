@@ -3,6 +3,14 @@ from fastapi import (
     HTTPException,
 )
 
+from app.domain.orders.exceptions import (
+    EmptyOrderError,
+)
+
+from app.api.schemas.get_order_response import (
+    GetOrderResponse,
+)
+
 from app.application.commands.create_order_command import (
     CreateOrderCommand,
 )
@@ -39,6 +47,13 @@ from app.application.commands.release_inventory_command import (
     ReleaseInventoryCommand,
 )
 
+from app.api.schemas.create_order_request import (
+    CreateOrderRequest,
+)
+
+from app.api.schemas.create_order_response import (
+    CreateOrderResponse,
+)
 
 
 app = (
@@ -55,8 +70,11 @@ def health():
 
 @app.post(
     "/orders",
+    response_model=CreateOrderResponse,
 )
-def create_order():
+def create_order(
+    request: CreateOrderRequest,
+):
 
     session = (
         SessionLocal()
@@ -74,9 +92,27 @@ def create_order():
         )
     )
 
-    order_id = (
-        command.execute()
-    )
+    try:
+
+        order_id = (
+            command.execute(
+                customer_id=(
+                    request.customer_id
+                ),
+                item_count=(
+                    request.item_count
+                ),
+            )
+        )
+
+    except EmptyOrderError:
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Order must contain at least one item"
+            ),
+        )
 
     return {
         "order_id": (
@@ -255,10 +291,11 @@ def confirm_order(
 
 @app.get(
     "/orders/{order_id}",
+    response_model=GetOrderResponse,
 )
 def get_order(
     order_id: str,
-) -> dict:
+):
 
     session = (
         SessionLocal()

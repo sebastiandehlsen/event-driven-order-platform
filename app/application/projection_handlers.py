@@ -20,9 +20,20 @@ class OrderCreatedProjectionHandler:
         payload: dict,
     ) -> None:
 
+        order_id = (
+            payload["order_id"]["value"]
+        )
+
+        customer_id = (
+            payload.get(
+                "customer_id",
+                {"value": order_id},
+            )["value"]
+        )
+
         projection = OrderProjection(
-            order_id=payload["order_id"]["value"],
-            customer_id=payload["order_id"]["value"],
+            order_id=order_id,
+            customer_id=customer_id,
             status="CREATED",
         )
 

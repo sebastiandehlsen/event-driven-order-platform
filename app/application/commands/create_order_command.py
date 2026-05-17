@@ -1,4 +1,5 @@
 from uuid import (
+    UUID,
     uuid4,
 )
 
@@ -29,12 +30,16 @@ class CreateOrderCommand:
 
     def execute(
         self,
+        customer_id: UUID,
+        item_count: int,
     ) -> str:
 
         order = (
             Order.create(
                 customer_id=(
-                    CustomerId.generate()
+                    CustomerId(
+                        customer_id
+                    )
                 ),
                 idempotency_key=(
                     IdempotencyKey(
@@ -43,7 +48,9 @@ class CreateOrderCommand:
                         )
                     )
                 ),
-                item_count=1,
+                item_count=(
+                    item_count
+                ),
                 correlation_id=(
                     uuid4()
                 ),
