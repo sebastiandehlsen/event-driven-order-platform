@@ -1,3 +1,4 @@
+import os
 import time
 
 import pika
@@ -25,7 +26,10 @@ class RabbitMQPublisher(
                 self._connection = (
                     pika.BlockingConnection(
                         pika.ConnectionParameters(
-                            host="rabbitmq",
+                            host=os.getenv(
+                                "RABBITMQ_HOST",
+                                "localhost",
+                            ),
                             port=5672,
                             credentials=(
                                 pika.PlainCredentials(
