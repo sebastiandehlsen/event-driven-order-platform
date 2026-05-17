@@ -29,6 +29,12 @@ def test_event_can_be_consumed_from_live_rabbitmq():
     )
 
     channel = connection.channel()
+
+    channel.exchange_declare(
+        exchange="orders",
+        exchange_type="topic",
+        durable=True,
+    )
     print("1: test connection ready")
 
     channel.queue_delete(
