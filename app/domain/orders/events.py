@@ -2,7 +2,10 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from app.domain.orders.value_objects import OrderId
+from app.domain.orders.value_objects import (
+    CustomerId,
+    OrderId,
+)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -27,6 +30,7 @@ class OrderCreated(
     DomainEvent
 ):
     order_id: OrderId
+    customer_id: CustomerId | None = None
 
 
 @dataclass(frozen=True)
@@ -34,6 +38,7 @@ class InventoryReserved(
     DomainEvent
 ):
     order_id: OrderId
+
 
 @dataclass(frozen=True)
 class InventoryReleased(

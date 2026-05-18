@@ -29,6 +29,7 @@ class RabbitMQPublisher(
                             host=os.getenv(
                                 "RABBITMQ_HOST",
                                 "rabbitmq",
+                                # "localhost",
                             ),
                             port=5672,
                             credentials=(
@@ -43,10 +44,11 @@ class RabbitMQPublisher(
 
                 break
 
-            except Exception:
+            except Exception as e:
 
                 print(
-                    "Waiting for RabbitMQ..."
+                    "RabbitMQ error:",
+                    repr(e),
                 )
 
                 time.sleep(

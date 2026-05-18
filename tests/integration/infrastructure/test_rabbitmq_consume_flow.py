@@ -1,11 +1,11 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 import time
 import os
 
 import pika
 
 from app.domain.orders.events import OrderCreated
-from app.domain.orders.value_objects import OrderId
+from app.domain.orders.value_objects import CustomerId, OrderId
 from app.infrastructure.mappers.outbox_mapper import OutboxMapper
 from app.infrastructure.messaging.rabbitmq_publisher import (
     RabbitMQPublisher,
@@ -13,6 +13,10 @@ from app.infrastructure.messaging.rabbitmq_publisher import (
 
 
 def test_event_can_be_consumed_from_live_rabbitmq():
+
+    queue_name = (
+        f"consume-test-{uuid4()}"
+    )
 
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(
@@ -35,31 +39,35 @@ def test_event_can_be_consumed_from_live_rabbitmq():
         exchange_type="topic",
         durable=True,
     )
+
     print("1: test connection ready")
 
-    channel.queue_delete(
-        queue="consume-test",
-    )
-
     channel.queue_declare(
-        queue="consume-test",
+        queue=queue_name,
         durable=False,
     )
 
     channel.queue_bind(
         exchange="orders",
-        queue="consume-test",
+        queue=queue_name,
         routing_key="#",
     )
 
     print("2: before publisher")
+
     publisher = RabbitMQPublisher()
+
     print("3: publisher ready")
 
     event = OrderCreated(
         order_id=OrderId(
             UUID(
                 "12345678-1234-5678-1234-567812345678",
+            )
+        ),
+        customer_id=CustomerId(
+            UUID(
+                "11111111-1111-1111-1111-111111111111",
             )
         ),
         correlation_id=UUID(
@@ -83,17 +91,21 @@ def test_event_can_be_consumed_from_live_rabbitmq():
         connection.process_data_events()
 
         method, _, body = channel.basic_get(
-            "consume-test",
+            queue_name,
             auto_ack=True,
         )
 
         if method:
+
             break
 
-        time.sleep(0.1)
+        time.sleep(
+            0.1
+        )
 
     assert method is not None
     assert body is not None
 
     publisher._connection.close()
+
     connection.close()

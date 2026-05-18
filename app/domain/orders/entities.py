@@ -54,6 +54,7 @@ class Order:
         order.pending_events.append(
             OrderCreated(
                 order_id=order.order_id,
+                customer_id=order.customer_id,
                 correlation_id=correlation_id,
             )
         )

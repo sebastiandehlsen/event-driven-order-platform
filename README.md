@@ -8,8 +8,9 @@ A production-inspired event-driven order processing platform built with Python, 
 - CQRS architecture
 - Event-driven messaging with RabbitMQ
 - Outbox pattern
+- Projection-based read models
 - Compensation flows (Saga-like behavior)
-- Dockerized services
+- Dockerized microservices
 - Automated CI pipeline with GitHub Actions
 - Unit + integration tests
 
@@ -24,14 +25,22 @@ Commands
    ↓
 Domain Aggregate
    ↓
+SQL Write Model
+   ↓
 Outbox Table
+   ↓
+Dispatcher
    ↓
 RabbitMQ
    ↓
 Consumers
    ↓
-Read Model / Projections
+Projections
+   ↓
+Read Model
 ```
+
+---
 
 ## Event Flow
 
@@ -77,7 +86,7 @@ Cancelled
 
 ## Run Locally
 
-### Clone
+### Clone repository
 
 ```bash
 git clone https://github.com/sebastiandehlsen/event-driven-order-platform.git
@@ -99,7 +108,7 @@ Windows:
 ### Install dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install fastapi uvicorn sqlalchemy pika pytest
 ```
 
 ---
@@ -107,13 +116,13 @@ pip install -r requirements.txt
 ## Run with Docker
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 Services:
 
-- API: http://localhost:8000/docs
-- RabbitMQ UI: http://localhost:15672
+- API Docs: http://localhost:8000/docs
+- RabbitMQ Management: http://localhost:15672
 
 Credentials:
 
@@ -137,7 +146,7 @@ python -m pytest -vv
 GET /health
 ```
 
-Returns:
+Response:
 
 ```json
 {
@@ -147,12 +156,13 @@ Returns:
 
 ---
 
-## CI
+## Continuous Integration
 
 GitHub Actions automatically runs:
 
 - Unit tests
 - Integration tests
+- RabbitMQ integration checks
 - Docker build verification
 
 ---
@@ -171,6 +181,8 @@ Status:
 ✅ CI passing  
 ✅ Dockerized  
 ✅ Event-driven  
+✅ CQRS operational  
+✅ RabbitMQ integration verified  
 
 ---
 

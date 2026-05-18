@@ -20,6 +20,10 @@ services:
 
         condition: service_healthy
 
+    environment:
+
+      RABBITMQ_HOST: rabbitmq
+
     volumes:
       - .:/app
 
@@ -40,6 +44,10 @@ services:
 
         condition: service_healthy
 
+    environment:
+
+      RABBITMQ_HOST: rabbitmq
+
     volumes:
       - .:/app
 
@@ -59,6 +67,10 @@ services:
       rabbitmq:
 
         condition: service_healthy
+
+    environment:
+
+      RABBITMQ_HOST: rabbitmq
 
     volumes:
       - .:/app
@@ -81,7 +93,7 @@ services:
       RABBITMQ_DEFAULT_PASS: admin
 
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
       interval: 5s
       timeout: 5s
       retries: 10
