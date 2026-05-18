@@ -33,6 +33,13 @@ class OrderRepository(ABC):
     ) -> Order | None:
         raise NotImplementedError
     
+    @abstractmethod
+    def get_by_idempotency_key(
+        self,
+        key: str,
+    ) -> Order | None:
+        raise NotImplementedError
+    
 class InMemoryOrderRepository(OrderRepository):
 
     def __init__(self) -> None:
@@ -49,6 +56,24 @@ class InMemoryOrderRepository(OrderRepository):
         order_id: OrderId,
     ) -> Order | None:
         return self._orders.get(order_id)
+    
+    def get_by_idempotency_key(
+        self,
+        key: str,
+    ) -> Order | None:
+
+        for order in (
+            self._orders.values()
+        ):
+
+            if (
+                order.idempotency_key.value
+                == key
+            ):
+
+                return order
+
+        return None
     
 class SqlAlchemyOrderRepository(
     OrderRepository
@@ -93,6 +118,31 @@ class SqlAlchemyOrderRepository(
         order.clear_pending_events()
 
         self._session.commit()
+
+    def get_by_idempotency_key(
+        self,
+        key: str,
+    ) -> Order | None:
+    
+        model = (
+            self._session.query(
+                OrderModel
+            )
+            .filter_by(
+                idempotency_key=key
+            )
+            .first()
+        )
+    
+        if model is None:
+        
+            return None
+    
+        return (
+            OrderMapper.to_domain(
+                model
+            )
+        )
 
     def get_by_id(
         self,

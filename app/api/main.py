@@ -1,5 +1,6 @@
 from fastapi import (
     FastAPI,
+    Header,
     HTTPException,
 )
 
@@ -74,6 +75,9 @@ def health():
 )
 def create_order(
     request: CreateOrderRequest,
+    idempotency_key: str = Header(
+        alias="Idempotency-Key",
+    ),
 ):
 
     session = (
@@ -101,6 +105,9 @@ def create_order(
                 ),
                 item_count=(
                     request.item_count
+                ),
+                idempotency_key=(
+                    idempotency_key
                 ),
             )
         )

@@ -32,8 +32,21 @@ class CreateOrderCommand:
         self,
         customer_id: UUID,
         item_count: int,
+        idempotency_key: str,
     ) -> str:
-
+    
+        existing_order = (
+            self._repository.get_by_idempotency_key(
+                idempotency_key
+            )
+        )
+    
+        if existing_order:
+        
+            return str(
+                existing_order.order_id.value
+            )
+    
         order = (
             Order.create(
                 customer_id=(
@@ -43,9 +56,7 @@ class CreateOrderCommand:
                 ),
                 idempotency_key=(
                     IdempotencyKey(
-                        str(
-                            uuid4()
-                        )
+                        idempotency_key
                     )
                 ),
                 item_count=(
@@ -56,11 +67,11 @@ class CreateOrderCommand:
                 ),
             )
         )
-
+    
         self._repository.save(
             order
         )
-
+    
         return str(
             order.order_id.value
         )
