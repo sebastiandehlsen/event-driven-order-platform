@@ -28,6 +28,29 @@ class EventHandlers:
         event_payload: dict,
     ) -> None:
 
+        if isinstance(
+            event_payload,
+            dict,
+        ):
+
+            customer = (
+                event_payload.get(
+                    "customer_id",
+                    {},
+                )
+                .get(
+                    "value",
+                )
+            )
+
+            if customer == (
+                "00000000-0000-0000-0000-000000000999"
+            ):
+
+                raise Exception(
+                    "DLQ demo"
+                )
+
         handler = (
             self._handlers.get(
                 event_type

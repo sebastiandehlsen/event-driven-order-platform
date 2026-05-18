@@ -15,6 +15,15 @@ def increment(
     ] += 1
 
 
+def get_metric(
+    metric_name: str,
+) -> int:
+
+    return _metrics[
+        metric_name
+    ]
+
+
 def snapshot(
 ) -> dict:
 

@@ -11,6 +11,9 @@ from app.shared.logger import (
 from app.application.event_handlers import (
     EventHandlers,
 )
+from app.shared.metrics import (
+    increment, 
+)
 
 
 class RabbitMQConsumer:
@@ -136,6 +139,8 @@ class RabbitMQConsumer:
                 )
 
             except Exception:
+
+                increment("consumer_failures_total")
             
                 log_event(
                     service="consumer",

@@ -4,6 +4,10 @@ from fastapi import (
     HTTPException,
 )
 
+from fastapi.responses import (
+    PlainTextResponse,
+)
+
 from app.domain.orders.exceptions import (
     EmptyOrderError,
 )
@@ -346,7 +350,26 @@ def get_order(
 
 @app.get(
     "/metrics",
+    response_class=(
+        PlainTextResponse
+    ),
 )
 def metrics():
 
-    return snapshot()
+    metrics = (
+        snapshot()
+    )
+
+    lines = []
+
+    for name, value in (
+        metrics.items()
+    ):
+
+        lines.append(
+            f"{name} {value}"
+        )
+
+    return "\n".join(
+        lines
+    )
