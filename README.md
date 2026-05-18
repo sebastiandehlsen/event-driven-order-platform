@@ -196,8 +196,16 @@ Windows:
 
 ### Install dependencies
 
+Using requirements:
+
 ```bash
 pip install -r requirements.txt
+```
+
+Or using pyproject:
+
+```bash
+pip install -e .
 ```
 
 ---
