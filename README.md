@@ -1,8 +1,8 @@
 # Event-Driven Order Platform
 
-A production-inspired event-driven order processing platform built with Python, FastAPI, RabbitMQ, SQLAlchemy, Docker, and GitHub Actions.
+A production-inspired event-driven order processing platform built with Python, FastAPI, RabbitMQ, SQLAlchemy, Docker, Prometheus, Grafana, and GitHub Actions.
 
-Designed around real-world distributed systems patterns including Domain-Driven Design, CQRS, Event-Driven Messaging, Transactional Outbox Pattern, Dead Letter Queues, Idempotency, Structured Logging, Metrics, and Correlation Tracing.
+Designed around real-world distributed systems patterns including Domain-Driven Design, CQRS, Event-Driven Messaging, Transactional Outbox Pattern, Dead Letter Queues, Idempotency, Structured Logging, Metrics, Observability, and Correlation Tracing.
 
 ---
 
@@ -18,7 +18,8 @@ Designed around real-world distributed systems patterns including Domain-Driven 
 - Idempotent command handling
 - Structured JSON logging
 - Correlation ID tracing
-- Metrics endpoint
+- Prometheus metrics scraping
+- Grafana live dashboards
 - Dockerized microservices
 - Automated CI pipeline
 - Unit + integration tests
@@ -117,18 +118,27 @@ Example:
 
 ### Metrics
 
-Built-in metrics endpoint:
+Prometheus scrapes live service metrics:
 
 ```text
 GET /metrics
 ```
 
-Example response:
+Example:
 
-```json
-{
-  "orders_created_total": 42
-}
+```text
+orders_created_total 42
+```
+
+---
+
+### Dashboards
+
+Grafana visualizes live business metrics:
+
+```text
+Orders Created
+Consumer Failures
 ```
 
 ---
@@ -141,7 +151,7 @@ Every domain event carries:
 - event_id
 - occurred_at
 
-This allows full request tracing across:
+This enables full traceability across:
 
 ```text
 API → Command → Outbox → Dispatcher → RabbitMQ → Consumer → Projection
@@ -156,6 +166,8 @@ API → Command → Outbox → Dispatcher → RabbitMQ → Consumer → Projecti
 - SQLAlchemy
 - RabbitMQ
 - Docker + Docker Compose
+- Prometheus
+- Grafana
 - Pytest
 - GitHub Actions
 
@@ -200,6 +212,8 @@ Services:
 
 - API Docs: http://localhost:8000/docs
 - RabbitMQ Management: http://localhost:15672
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000
 
 Credentials:
 
@@ -267,7 +281,7 @@ GitHub Actions automatically runs:
 Current release:
 
 ```text
-v0.2.0
+v0.3.0
 ```
 
 Status:
@@ -281,7 +295,8 @@ Status:
 ✅ DLQ operational  
 ✅ Idempotency implemented  
 ✅ Structured logging operational  
-✅ Metrics operational  
+✅ Prometheus operational  
+✅ Grafana operational  
 ✅ Correlation tracing operational  
 
 ---
