@@ -56,6 +56,11 @@ from app.api.schemas.create_order_response import (
     CreateOrderResponse,
 )
 
+from app.shared.metrics import (
+    increment,
+    snapshot,
+)
+
 
 app = (
     FastAPI()
@@ -120,6 +125,10 @@ def create_order(
                 "Order must contain at least one item"
             ),
         )
+    
+    increment(
+        "orders_created_total"
+    )
 
     return {
         "order_id": (
@@ -334,3 +343,10 @@ def get_order(
         )
 
     return order
+
+@app.get(
+    "/metrics",
+)
+def metrics():
+
+    return snapshot()

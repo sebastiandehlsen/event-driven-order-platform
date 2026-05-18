@@ -4,6 +4,10 @@ import time
 
 import pika
 
+from app.shared.logger import (
+    log_event,
+)
+
 from app.application.event_handlers import (
     EventHandlers,
 )
@@ -46,8 +50,9 @@ class RabbitMQConsumer:
 
             except Exception:
 
-                print(
-                    "Waiting for RabbitMQ..."
+                log_event(
+                    service="consumer",
+                    event="rabbitmq_waiting",
                 )
 
                 time.sleep(
@@ -65,8 +70,17 @@ class RabbitMQConsumer:
         )
 
         self._channel.queue_declare(
+            queue="order-events-dlq",
+            durable=True,
+        )
+
+        self._channel.queue_declare(
             queue="order-events",
             durable=True,
+            arguments={
+                "x-dead-letter-exchange": "",
+                "x-dead-letter-routing-key": ( "order-events-dlq" ),
+            },
         )
 
         self._channel.queue_bind(
@@ -79,8 +93,9 @@ class RabbitMQConsumer:
         self,
     ) -> None:
 
-        print(
-            "Consumer started",
+        log_event(
+            service="consumer",
+            event="consumer_started",
         )
 
         def callback(
@@ -96,20 +111,54 @@ class RabbitMQConsumer:
                 )
             )
 
-            print(
-                method.routing_key,
-                payload,
+            log_event(
+                service="consumer",
+                correlation_id=(
+                    payload[
+                        "correlation_id"
+                    ]
+                ),
+                event=method.routing_key,
+                payload=payload,
             )
 
-            self._handlers.handle(
-                method.routing_key,
-                payload,
-            )
+            try:
+            
+                self._handlers.handle(
+                    method.routing_key,
+                    payload,
+                )
+
+                ch.basic_ack(
+                    delivery_tag=(
+                        method.delivery_tag
+                    )
+                )
+
+            except Exception:
+            
+                log_event(
+                    service="consumer",
+                    correlation_id=(
+                        payload[
+                            "correlation_id"
+                        ]
+                    ),
+                    event="handler_failed",
+                    payload=payload,
+                )
+
+                ch.basic_nack(
+                    delivery_tag=(
+                        method.delivery_tag
+                    ),
+                    requeue=False,
+                )
 
         self._channel.basic_consume(
             queue="order-events",
             on_message_callback=callback,
-            auto_ack=True,
+            auto_ack=False,
         )
 
         self._channel.start_consuming()

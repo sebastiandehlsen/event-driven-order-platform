@@ -2,16 +2,25 @@
 
 A production-inspired event-driven order processing platform built with Python, FastAPI, RabbitMQ, SQLAlchemy, Docker, and GitHub Actions.
 
+Designed around real-world distributed systems patterns including Domain-Driven Design, CQRS, Event-Driven Messaging, Transactional Outbox Pattern, Dead Letter Queues, Idempotency, Structured Logging, Metrics, and Correlation Tracing.
+
+---
+
 ## Features
 
 - Domain-Driven Design (DDD)
 - CQRS architecture
 - Event-driven messaging with RabbitMQ
-- Outbox pattern
+- Transactional Outbox Pattern
 - Projection-based read models
-- Compensation flows (Saga-like behavior)
+- Saga-style compensation flows
+- Dead Letter Queue (DLQ)
+- Idempotent command handling
+- Structured JSON logging
+- Correlation ID tracing
+- Metrics endpoint
 - Dockerized microservices
-- Automated CI pipeline with GitHub Actions
+- Automated CI pipeline
 - Unit + integration tests
 
 ---
@@ -19,6 +28,8 @@ A production-inspired event-driven order processing platform built with Python, 
 ## Architecture
 
 ```text
+Client
+   ↓
 FastAPI
    ↓
 Commands
@@ -31,11 +42,11 @@ Outbox Table
    ↓
 Dispatcher
    ↓
-RabbitMQ
+RabbitMQ Exchange
    ↓
-Consumers
+Consumer
    ↓
-Projections
+Projection Handlers
    ↓
 Read Model
 ```
@@ -68,6 +79,72 @@ PaymentFailed
 InventoryReleased
     ↓
 Cancelled
+```
+
+---
+
+## Dead Letter Flow
+
+If event handling fails:
+
+```text
+RabbitMQ
+   ↓
+order-events
+   ↓ failure
+order-events-dlq
+```
+
+Failed events are acknowledged manually and routed to the Dead Letter Queue for later inspection.
+
+---
+
+## Observability
+
+### Structured Logging
+
+Example:
+
+```json
+{
+  "service": "consumer",
+  "correlation_id": "db8bc127-ce6c-4d7a-8112-1610dd9ca9a1",
+  "event": "OrderCreated"
+}
+```
+
+---
+
+### Metrics
+
+Built-in metrics endpoint:
+
+```text
+GET /metrics
+```
+
+Example response:
+
+```json
+{
+  "orders_created_total": 42
+}
+```
+
+---
+
+### Correlation Tracing
+
+Every domain event carries:
+
+- correlation_id
+- event_id
+- occurred_at
+
+This allows full request tracing across:
+
+```text
+API → Command → Outbox → Dispatcher → RabbitMQ → Consumer → Projection
 ```
 
 ---
@@ -108,7 +185,7 @@ Windows:
 ### Install dependencies
 
 ```bash
-pip install fastapi uvicorn sqlalchemy pika pytest
+pip install -r requirements.txt
 ```
 
 ---
@@ -138,20 +215,38 @@ admin / admin
 python -m pytest -vv
 ```
 
----
+Current test suite:
 
-## Health Check
-
-```bash
-GET /health
+```text
+30 tests passing
 ```
 
-Response:
+---
 
-```json
-{
-  "status": "ok"
-}
+## API Endpoints
+
+### Core
+
+```text
+POST /orders
+GET /orders/{order_id}
+```
+
+### Workflow
+
+```text
+POST /orders/{order_id}/reserve-inventory
+POST /orders/{order_id}/authorize-payment
+POST /orders/{order_id}/fail-payment
+POST /orders/{order_id}/release-inventory
+POST /orders/{order_id}/confirm
+```
+
+### Observability
+
+```text
+GET /health
+GET /metrics
 ```
 
 ---
@@ -162,7 +257,7 @@ GitHub Actions automatically runs:
 
 - Unit tests
 - Integration tests
-- RabbitMQ integration checks
+- RabbitMQ integration tests
 - Docker build verification
 
 ---
@@ -172,7 +267,7 @@ GitHub Actions automatically runs:
 Current release:
 
 ```text
-v0.1.0
+v0.2.0
 ```
 
 Status:
@@ -183,6 +278,11 @@ Status:
 ✅ Event-driven  
 ✅ CQRS operational  
 ✅ RabbitMQ integration verified  
+✅ DLQ operational  
+✅ Idempotency implemented  
+✅ Structured logging operational  
+✅ Metrics operational  
+✅ Correlation tracing operational  
 
 ---
 
